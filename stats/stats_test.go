@@ -37,7 +37,7 @@ func TestCalculate(t *testing.T) {
 	}
 
 	calculator := NewCalculator(entries)
-	result := calculator.Calculate()
+	result := calculator.Calculate("count", 0)
 
 	if len(result) != 4 {
 		t.Errorf("Expected 4 unique monsters, got %d", len(result))
@@ -134,7 +134,7 @@ func TestFormatTableWithoutExp(t *testing.T) {
 func TestEmptyStats(t *testing.T) {
 	entries := []parser.LogEntry{}
 	calculator := NewCalculator(entries)
-	result := calculator.Calculate()
+	result := calculator.Calculate("count", 0)
 
 	if len(result) != 0 {
 		t.Errorf("Expected 0 stats for empty entries, got %d", len(result))
@@ -157,7 +157,7 @@ func TestSortingByKillCount(t *testing.T) {
 	}
 
 	calculator := NewCalculator(entries)
-	result := calculator.Calculate()
+	result := calculator.Calculate("count", 0)
 
 	// Should be sorted by kill count descending
 	if result[0].Name != "C" || result[0].KillCount != 3 {
@@ -199,7 +199,7 @@ func TestDuplicateMonsters(t *testing.T) {
 	}
 
 	calculator := NewCalculator(entries)
-	result := calculator.Calculate()
+	result := calculator.Calculate("count", 0)
 
 	if len(result) != 1 {
 		t.Errorf("Expected 1 unique monster, got %d", len(result))
@@ -226,7 +226,7 @@ func TestMixedExpAndNoExp(t *testing.T) {
 	}
 
 	calculator := NewCalculator(entries)
-	result := calculator.Calculate()
+	result := calculator.Calculate("count", 0)
 
 	if len(result) != 1 {
 		t.Errorf("Expected 1 monster, got %d", len(result))
@@ -263,6 +263,56 @@ func TestFormatNumberForDisplay(t *testing.T) {
 		result := FormatNumberForDisplay(tt.input)
 		if result != tt.expected {
 			t.Errorf("FormatNumberForDisplay(%d) = %q, expected %q", tt.input, result, tt.expected)
+		}
+	}
+}
+
+func TestSortingByExp(t *testing.T) {
+	entries := []parser.LogEntry{
+		{Timestamp: "1", MonsterName: "A", ExpGained: 100},
+		{Timestamp: "2", MonsterName: "B", ExpGained: 200},
+		{Timestamp: "3", MonsterName: "B", ExpGained: 200},
+		{Timestamp: "4", MonsterName: "C", ExpGained: 300},
+		{Timestamp: "5", MonsterName: "C", ExpGained: 300},
+		{Timestamp: "6", MonsterName: "C", ExpGained: 300},
+	}
+
+	calculator := NewCalculator(entries)
+	result := calculator.Calculate("exp", 0)
+
+	// Should be sorted by total exp descending
+	if result[0].Name != "C" || result[0].TotalExp != 900 {
+		t.Errorf("First should be C with 900 exp, got %s with %d", result[0].Name, result[0].TotalExp)
+	}
+	if result[1].Name != "B" || result[1].TotalExp != 400 {
+		t.Errorf("Second should be B with 400 exp, got %s with %d", result[1].Name, result[1].TotalExp)
+	}
+	if result[2].Name != "A" || result[2].TotalExp != 100 {
+		t.Errorf("Third should be A with 100 exp, got %s with %d", result[2].Name, result[2].TotalExp)
+	}
+}
+
+func TestLimit(t *testing.T) {
+	entries := []parser.LogEntry{
+		{Timestamp: "1", MonsterName: "A", ExpGained: 100},
+		{Timestamp: "2", MonsterName: "B", ExpGained: 200},
+		{Timestamp: "3", MonsterName: "C", ExpGained: 300},
+		{Timestamp: "4", MonsterName: "D", ExpGained: 400},
+		{Timestamp: "5", MonsterName: "E", ExpGained: 500},
+	}
+
+	calculator := NewCalculator(entries)
+	result := calculator.Calculate("count", 3)
+
+	if len(result) != 3 {
+		t.Errorf("Expected 3 monsters with limit 3, got %d", len(result))
+	}
+
+	// Should be top 3 by kill count (all have 1 kill, so alphabetical)
+	expected := []string{"A", "B", "C"}
+	for i, exp := range expected {
+		if result[i].Name != exp {
+			t.Errorf("Position %d should be %s, got %s", i, exp, result[i].Name)
 		}
 	}
 }

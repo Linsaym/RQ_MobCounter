@@ -25,6 +25,8 @@ func main() {
 	showExp := flag.Bool("exp", false, "показывать опыт")
 	month := flag.String("month", "", "анализ конкретного месяца (YYYY.MM)")
 	all := flag.Bool("all", false, "обработка всех файлов")
+	sortBy := flag.String("sort", "count", "сортировка: count (по количеству) или exp (по опыту)")
+	limit := flag.Int("limit", 20, "максимальное количество записей для отображения")
 
 	flag.Parse()
 
@@ -91,7 +93,7 @@ func main() {
 	}
 
 	calculator := stats.NewCalculator(allEntries)
-	monsterStats := calculator.Calculate()
+	monsterStats := calculator.Calculate(*sortBy, *limit)
 
 	if len(filesToProcess) > 1 {
 		fmt.Printf("%s=== ОБЩАЯ СТАТИСТИКА ===%s\n", ColorYellow, ColorReset)

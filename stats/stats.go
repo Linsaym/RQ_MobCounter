@@ -24,7 +24,7 @@ func NewCalculator(entries []parser.LogEntry) *Calculator {
 	}
 }
 
-func (c *Calculator) Calculate() []MonsterStats {
+func (c *Calculator) Calculate(sortBy string, limit int) []MonsterStats {
 	statsMap := make(map[string]*MonsterStats)
 
 	for _, entry := range c.entries {
@@ -49,11 +49,21 @@ func (c *Calculator) Calculate() []MonsterStats {
 	}
 
 	sort.Slice(result, func(i, j int) bool {
-		if result[i].KillCount != result[j].KillCount {
-			return result[i].KillCount > result[j].KillCount
+		if sortBy == "exp" {
+			if result[i].TotalExp != result[j].TotalExp {
+				return result[i].TotalExp > result[j].TotalExp
+			}
+		} else {
+			if result[i].KillCount != result[j].KillCount {
+				return result[i].KillCount > result[j].KillCount
+			}
 		}
 		return result[i].Name < result[j].Name
 	})
+
+	if limit > 0 && len(result) > limit {
+		result = result[:limit]
+	}
 
 	return result
 }
