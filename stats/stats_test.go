@@ -89,8 +89,8 @@ func TestFormatTableWithExp(t *testing.T) {
 	if !strings.Contains(output, "Злая шкатулка") {
 		t.Errorf("Output should contain 'Злая шкатулка'")
 	}
-	if !strings.Contains(output, "8619") {
-		t.Errorf("Output should contain '8619'")
+	if !strings.Contains(output, "8,619") {
+		t.Errorf("Output should contain '8,619'")
 	}
 	if !strings.Contains(output, "Монстр") {
 		t.Errorf("Output should contain header 'Монстр'")
@@ -239,5 +239,30 @@ func TestMixedExpAndNoExp(t *testing.T) {
 
 	if monster.TotalExp != 200 {
 		t.Errorf("Expected 200 total exp (100+0+100), got %d", monster.TotalExp)
+	}
+}
+
+func TestFormatNumberForDisplay(t *testing.T) {
+	tests := []struct {
+		input    int
+		expected string
+	}{
+		{0, "0"},
+		{1, "1"},
+		{100, "100"},
+		{1000, "1,000"},
+		{10000, "10,000"},
+		{100000, "100,000"},
+		{1000000, "1,000,000"},
+		{10000000, "10,000,000"},
+		{102413, "102,413"},
+		{22984, "22,984"},
+	}
+
+	for _, tt := range tests {
+		result := FormatNumberForDisplay(tt.input)
+		if result != tt.expected {
+			t.Errorf("FormatNumberForDisplay(%d) = %q, expected %q", tt.input, result, tt.expected)
+		}
 	}
 }

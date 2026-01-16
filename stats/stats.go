@@ -71,10 +71,10 @@ func FormatTable(stats []MonsterStats, showExp bool) string {
 		output += strings.Repeat("-", 75) + "\n"
 
 		for _, s := range stats {
-			output += fmt.Sprintf("%-40s | %15d | %15d\n",
+			output += fmt.Sprintf("%-40s | %15d | %15s\n",
 				truncateString(s.Name, 40),
 				s.KillCount,
-				s.TotalExp)
+				FormatNumberForDisplay(s.TotalExp))
 		}
 	} else {
 		output += fmt.Sprintf("%-40s | %15s\n", "Монстр", "Количество")
@@ -95,4 +95,20 @@ func truncateString(s string, maxLen int) string {
 		return s
 	}
 	return s[:maxLen-3] + "..."
+}
+
+func FormatNumberForDisplay(n int) string {
+	s := fmt.Sprintf("%d", n)
+	if len(s) <= 3 {
+		return s
+	}
+
+	var result strings.Builder
+	for i, c := range s {
+		if i > 0 && (len(s)-i)%3 == 0 {
+			result.WriteRune(',')
+		}
+		result.WriteRune(c)
+	}
+	return result.String()
 }

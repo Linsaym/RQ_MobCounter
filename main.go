@@ -15,6 +15,12 @@ import (
 	"RQ_MobCounter/stats"
 )
 
+const (
+	ColorGreen  = "\033[32m"
+	ColorYellow = "\033[33m"
+	ColorReset  = "\033[0m"
+)
+
 func main() {
 	showExp := flag.Bool("exp", false, "показывать опыт")
 	month := flag.String("month", "", "анализ конкретного месяца (YYYY.MM)")
@@ -75,8 +81,6 @@ func main() {
 	var allEntries []parser.LogEntry
 
 	for _, filePath := range filesToProcess {
-		fmt.Printf("обработка: %s\n", filepath.Base(filePath))
-
 		entries, err := parser.ParseFile(filePath)
 		if err != nil {
 			log.Printf("ошибка при парсинге %s: %v", filePath, err)
@@ -84,20 +88,19 @@ func main() {
 		}
 
 		allEntries = append(allEntries, entries...)
-		fmt.Printf("найдено записей: %d\n\n", len(entries))
 	}
 
 	calculator := stats.NewCalculator(allEntries)
 	monsterStats := calculator.Calculate()
 
 	if len(filesToProcess) > 1 {
-		fmt.Println("=== ОБЩАЯ СТАТИСТИКА ===")
+		fmt.Printf("%s=== ОБЩАЯ СТАТИСТИКА ===%s\n", ColorYellow, ColorReset)
 		fmt.Println()
 	}
 
 	fmt.Print(stats.FormatTable(monsterStats, *showExp))
 
-	fmt.Printf("\nВсего записей: %d\n", len(allEntries))
+	fmt.Printf("\n%sВсего записей: %d%s\n", ColorGreen, len(allEntries), ColorReset)
 	totalKills := 0
 	totalExp := 0
 	for _, m := range monsterStats {
@@ -105,7 +108,7 @@ func main() {
 		totalExp += m.TotalExp
 	}
 	if *showExp {
-		fmt.Printf("Всего опыта: %d\n", totalExp)
+		fmt.Printf("%sВсего опыта: %s%s\n", ColorGreen, stats.FormatNumberForDisplay(totalExp), ColorReset)
 	}
 }
 

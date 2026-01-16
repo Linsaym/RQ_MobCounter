@@ -25,7 +25,7 @@ if errorlevel 1 (
 )
 
 echo [2/3] Running tests...
-go test ./... -v
+powershell -ExecutionPolicy Bypass -File test.ps1
 if errorlevel 1 (
     echo Error: Tests failed
     exit /b 1

@@ -11,6 +11,7 @@ RQ_MobCounter/
 ├── go.mod               # Определение модуля Go
 ├── go.sum               # Контрольные суммы зависимостей
 ├── build.bat            # Скрипт сборки для Windows
+├── test.ps1             # Скрипт тестирования с цветным выводом
 ├── config/
 │   ├── config.go        # Загрузка/сохранение JSON конфига
 │   └── config_test.go   # Тесты для конфига
@@ -58,10 +59,14 @@ RQ_MobCounter/
 
 ## Запуск тестов
 
-### Все тесты
+### Все тесты (с цветным выводом)
 
 ```bash
-go test ./... -v
+# Рекомендуемый способ - с цветным выводом
+powershell test.ps1
+
+# Или через build.bat (включает цветной вывод тестов)
+build.bat
 ```
 
 ### Тесты конкретного пакета
@@ -84,6 +89,12 @@ go tool cover -html=coverage.out
 
 ```bash
 go test -run TestParseFile ./parser -v
+```
+
+### Стандартный вывод Go (без цветов)
+
+```bash
+go test ./... -v
 ```
 
 ## Сборка
